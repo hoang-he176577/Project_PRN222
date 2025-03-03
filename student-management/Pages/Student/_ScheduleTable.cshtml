@@ -1,0 +1,13 @@
+@model List<StudentManagement.Pages.Student.ScheduleViewModel>
+
+@foreach (var item in Model)
+{
+    <tr>
+        <td>@item.Id</td>
+        <td>@item.SubjectName</td>
+        <td>@item.TeacherName</td>
+        <td>@item.RoomName</td>
+        <td>@item.DaysOfWeek</td>
+        <td>@item.StudySessions</td>
+    </tr>
+}

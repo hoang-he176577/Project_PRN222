@@ -1,0 +1,56 @@
+@page
+@using StudentManagement.Pages.Auth
+@model LoginModel
+@{
+}
+@{
+    ViewData["Title"] = "Đăng nhập";
+    Layout = "_LayoutAuth";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-4">
+        <div class="card shadow-lg border-0">
+            <div class="card-body p-4">
+                <h3 class="text-center mb-4" style="color: #2c3e50;">Đăng nhập</h3>
+                @if (!string.IsNullOrEmpty(Model.Error))
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        @Model.Error
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                <form method="post">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold" style="color: #34495e;">Tên đăng nhập</label>
+                        <input name="username" class="form-control" required placeholder="Nhập tên đăng nhập" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold" style="color: #34495e;">Mật khẩu</label>
+                        <input name="password" type="password" class="form-control" required
+                            placeholder="Nhập mật khẩu" />
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-2"
+                        style="background-color: #007bff; border: none; transition: background-color 0.3s;">
+                        Đăng nhập
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 10px;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+    .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
+</style>
