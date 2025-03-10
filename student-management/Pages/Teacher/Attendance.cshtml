@@ -1,0 +1,72 @@
+@page "{classId:int?}"
+@model StudentManagement.Pages.Teacher.AttendanceModel
+@{
+    ViewData["Title"] = "Điểm Danh Học Sinh";
+    Layout = "_LayoutTeacher";
+
+    int selectedClassId = Model.SelectedClassId;
+}
+
+<div class="container mt-4">
+    <h2 class="text-center">Điểm Danh Học Sinh</h2>
+
+    <div class="row mb-4">
+        <div class="col-md-6 offset-md-3">
+            <label for="classSelect">Chọn Lớp:</label>
+            <select id="classSelect" class="form-control">
+                <option value="">-- Chọn lớp --</option>
+                @* @foreach (var classItem in Model.Classes)
+                {
+                    bool isSelected = classItem.Id == selectedClassId;
+                    <option value="@classItem.Id" selected="@(isSelected ? "selected" : null)">
+                        @classItem.ClassName
+                    </option>
+                } *@
+            </select>
+        </div>
+    </div>
+
+    @if (Model.Students.Count > 0)
+    {
+        <form method="post">
+            <table class="table table-bordered text-center">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Tên Học Sinh</th>
+                        <th>Điểm Danh</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var student in Model.Students)
+                    {
+                        <tr>
+                            <td>@student.Name</td>
+                            <td>
+                                <input type="checkbox" name="presentStudentIds" value="@student.Id" />
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <input type="hidden" name="classId" value="@selectedClassId" />
+            <button type="submit" class="btn btn-primary">Điểm Danh</button>
+        </form>
+    }
+    else if (selectedClassId != 0)
+    {
+        <p class="text-center">Không có học sinh nào trong lớp này.</p>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $("#classSelect").change(function () {
+                var classId = $(this).val();
+                if (classId) {
+                    window.location.href = `/Teacher/Attendance?classId=${classId}`;
+                }
+            });
+        });
+    </script>
+}

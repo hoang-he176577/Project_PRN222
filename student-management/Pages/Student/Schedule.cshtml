@@ -1,9 +1,14 @@
-@page
+@page "{termId:int?}"
 @model StudentManagement.Pages.Student.ScheduleModel
-
 @{
     ViewData["Title"] = "Lịch học";
-    Layout = "_Layout";
+    Layout = "_LayoutStudent";
+
+    int selectedTermId = 0;
+    if (int.TryParse(Request.Query["termId"], out int parsedTermId))
+    {
+        selectedTermId = parsedTermId;
+    }
 }
 
 <h2 class="text-center">Lịch học của bạn</h2>
@@ -11,8 +16,13 @@
 <div class="row mt-4">
     <div class="col-md-4">
         <label for="termSelect" class="form-label">Chọn kỳ học:</label>
-        <select id="termSelect" class="form-select" asp-for="SelectedTermId" asp-items="Model.Terms">
+        <select id="termSelect" class="form-select">
             <option value="">-- Chọn kỳ học --</option>
+            @foreach (var term in Model.Terms)
+            {
+                bool isSelected = term.Value == selectedTermId.ToString();
+                <option value="@term.Value" selected="@(isSelected ? "selected" : null)">@term.Text</option>
+            }
         </select>
     </div>
 </div>
@@ -29,36 +39,36 @@
         </tr>
     </thead>
     <tbody id="scheduleTable">
-        @foreach (var item in Model.ScheduleList)
+        @if (Model.ScheduleList.Count == 0)
         {
             <tr>
-                <td>@item.Id</td>
-                <td>@item.SubjectName</td>
-                <td>@item.TeacherName</td>
-                <td>@item.RoomName</td>
-                <td>@item.DaysOfWeek</td>
-                <td>@item.StudySessions</td>
+                <td colspan="6">Không có lịch học nào cho kỳ học này.</td>
             </tr>
+        }
+        else
+        {
+            @foreach (var item in Model.ScheduleList)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.SubjectName</td>
+                    <td>@item.TeacherName</td>
+                    <td>@item.RoomName</td>
+                    <td>@item.DaysOfWeek</td>
+                    <td>@item.StudySessions</td>
+                </tr>
+            }
         }
     </tbody>
 </table>
 
-<script>
-    $(document).ready(function () {
-        $('#termSelect').change(function () {
-            var termId = $(this).val();
-            $.ajax({
-                url: "/Student/Schedule?handler=LoadSchedule",
-                type: "GET",
-                data: { termId: termId },
-                success: function (data) {
-                    console.log(data)
-                    $('#scheduleTable').html(data); 
-                },
-                error: function () {
-                    alert("❌ Lỗi khi tải dữ liệu!");
-                }
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#termSelect').change(function () {
+                var termId = $(this).val();
+                window.location.href = `/Student/Schedule?termId=${termId}`;
             });
         });
-    });
-</script>
+    </script>
+}

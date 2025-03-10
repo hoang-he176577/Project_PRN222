@@ -1,0 +1,100 @@
+@page
+@model StudentManagement.Pages.Student.AttendanceModel
+
+@{
+    ViewData["Title"] = "Tra Cứu Điểm Danh";
+    Layout = "_LayoutStudent";
+}
+<div class="container mt-4">
+    <h2 class="text-center">Tra Cứu Điểm Danh</h2>
+
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label for="termSelect">Chọn Kỳ Học:</label>
+            <select id="termSelect" class="form-control">
+                <option value="">-- Chọn kỳ học --</option>
+                @foreach (var term in Model.Terms)
+                {
+                    <option value="@term.Value">@term.Text</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label for="subjectSelect">Chọn Môn Học:</label>
+            <select id="subjectSelect" class="form-control">
+                <option value="">-- Tất cả --</option>
+                @foreach (var subject in Model.Subjects)
+                {
+                    <option value="@subject.Value">@subject.Text</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label for="statusSelect">Trạng Thái:</label>
+            <select id="statusSelect" class="form-control">
+                <option value="">-- Tất cả --</option>
+                <option value="Present">Có Mặt</option>
+                <option value="Absent">Vắng Mặt</option>
+                <option value="Late">Đi Trễ</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="attendanceTableContainer">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Môn học</th>
+                    <th>Trạng thái</th>
+                    <th>Số lần</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.AttendanceSummary.Count == 0)
+                {
+                    <tr>
+                        <td colspan="3" class="text-center">Không có dữ liệu</td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var item in Model.AttendanceSummary)
+                    {
+                        <tr>
+                            <td>@item.SubjectName</td>
+                            <td>@item.Status</td>
+                            <td>@item.Count</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            function loadAttendanceData() {
+                var termId = $("#termSelect").val();
+                var subjectId = $("#subjectSelect").val();
+                var status = $("#statusSelect").val();
+
+                $.ajax({
+                    url: `/Student/Attendance?handler=LoadAttendance&termId=${termId}&subjectId=${subjectId}&status=${status}`,
+                    type: "GET",
+                    success: function (response) {
+                        $("#attendanceTableContainer").html(response);
+                    },
+                    error: function (xhr) {
+                        alert("Lỗi khi tải dữ liệu điểm danh: " + xhr.responseText);
+                    }
+                });
+            }
+
+            $("#termSelect, #subjectSelect, #statusSelect").change(loadAttendanceData);
+
+            loadAttendanceData();
+        });
+    </script>
+}

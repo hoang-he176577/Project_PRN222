@@ -1,0 +1,30 @@
+@model List<StudentManagement.Pages.Student.AttendanceSummaryViewModel>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Môn học</th>
+            <th>Trạng thái</th>
+            <th>Số lần</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Count == 0)
+        {
+                <tr>
+                    <td colspan="3" class="text-center">Không có dữ liệu</td>
+                </tr>
+        }
+        else
+        {
+                @foreach (var item in Model)
+                {
+                        <tr>
+                            <td>@item.SubjectName</td>
+                            <td>@item.Status</td>
+                            <td>@item.Count</td>
+                        </tr>
+                }
+        }
+    </tbody>
+</table>

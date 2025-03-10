@@ -2,9 +2,10 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using StudentManagement.Data;
 using System.Security.Claims;
 
-namespace StudentManagement.Pages.Auth 
+namespace StudentManagement.Pages.Auth
 {
     public class LoginModel : PageModel
     {
@@ -20,7 +21,6 @@ namespace StudentManagement.Pages.Auth
 
         public void OnGet()
         {
-            // Hiển thị trang đăng nhập
         }
 
         public async Task<IActionResult> OnPostAsync(string username, string password)
@@ -33,11 +33,11 @@ namespace StudentManagement.Pages.Auth
             }
 
             var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim("UserId", user.Id.ToString()),
-                new Claim(ClaimTypes.Role, user.Role.ToString())
-            };
+                {
+                    new Claim(ClaimTypes.Name, user.Username),
+                    new Claim("UserId", user.Id.ToString()),
+                    new Claim(ClaimTypes.Role, user.Role.ToString())
+                };
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var authProperties = new AuthenticationProperties();
@@ -48,7 +48,13 @@ namespace StudentManagement.Pages.Auth
                 authProperties
             );
 
-            return RedirectToPage("/Index"); 
+            return Enum.Parse<UserRole>(user.Role.ToString()) switch
+            {
+                UserRole.Admin => RedirectToPage("/Admin"),
+                UserRole.Teacher => RedirectToPage("/Teacher/Attendance"),
+                UserRole.Student => RedirectToPage("/Student/Attendance"),
+                _ => RedirectToPage("/Index")
+            };
         }
     }
 }

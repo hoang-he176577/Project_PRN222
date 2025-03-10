@@ -1,0 +1,72 @@
+@page "{termId:int?}"
+@model StudentManagement.Pages.Student.ScoreModel
+@{
+    ViewData["Title"] = "Xem Điểm Theo Kỳ";
+    Layout = "_LayoutStudent";
+
+    int selectedTermId = 0;
+    if (int.TryParse(Request.Query["termId"], out int parsedTermId))
+    {
+        selectedTermId = parsedTermId;
+    }
+}
+
+<div class="container mt-4">
+    <h2 class="text-center">Xem Điểm Theo Kỳ</h2>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <label for="termSelect">Chọn Kỳ Học:</label>
+            <select id="termSelect" class="form-control">
+                <option value="">-- Chọn kỳ học --</option>
+                @foreach (var term in Model.Terms)
+                {
+                    bool isSelected = term.Id == selectedTermId;
+                    <option value="@term.Id" selected="@(isSelected ? "selected" : null)">@term.Name</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <table class="table table-bordered text-center">
+        <thead class="thead-dark">
+            <tr>
+                <th>Họ Tên</th>
+                <th>Điểm</th>
+                <th>Môn Học</th>
+                <th>Kỳ Học</th>
+            </tr>
+        </thead>
+        <tbody id="scoreTableBody">
+            @if (Model.ScoreList.Count == 0)
+            {
+                <tr>
+                    <td colspan="3">Không có điểm trong kỳ học này.</td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var score in Model.ScoreList)
+                {
+                    <tr>
+                        <td>@score.StudentName</td>
+                        <td>@score.ScoreValue</td>
+                        <td>@score.SubjectName</td>
+                        <td>@score.TermName</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $("#termSelect").change(function () {
+                var termId = $(this).val();
+                window.location.href = `/Student/Score?termId=${termId}`;
+            });
+        });
+    </script>
+}

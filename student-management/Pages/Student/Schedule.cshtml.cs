@@ -1,11 +1,14 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using StudentManagement.Data;
 
 
 namespace StudentManagement.Pages.Student
 {
+    [Authorize(Roles = "Student")]
     public class ScheduleModel : PageModel
     {
         private readonly ApplicationDbContext _context;
@@ -16,45 +19,49 @@ namespace StudentManagement.Pages.Student
         }
 
         public List<ScheduleViewModel> ScheduleList { get; set; } = new List<ScheduleViewModel>();
-
         public List<SelectListItem> Terms { get; set; } = new List<SelectListItem>();
 
         [BindProperty]
         public int SelectedTermId { get; set; }
+        public int UserId { get; set; }
 
-        public async Task<IActionResult> OnGetAsync()
+        public async Task<IActionResult> OnGetAsync(int? termId)
         {
-            Terms = await _context.Terms
-                .Select(t => new SelectListItem { Value = t.Id.ToString(), Text = t.TermName })
+            UserId = int.Parse(User.FindFirst("UserId")?.Value ?? "0");
+
+            Terms = await _context.Schedules
+                .Where(s => s.Class.Members.Any(cm => cm.UserId == UserId))
+                .Select(s => s.Term)
+                .Distinct()
+                .Select(t => new SelectListItem { Value = t.Id.ToString(), Text = t.Name })
                 .ToListAsync();
 
-            SelectedTermId = Terms.Any() ? int.Parse(Terms.First().Value) : 0;
-
-            await LoadSchedule(SelectedTermId);
+            if (termId.HasValue)
+            {
+                SelectedTermId = termId.Value;
+                await LoadSchedule(termId.Value);
+            }
+            else if (Terms.Any())
+            {
+                SelectedTermId = int.Parse(Terms.First().Value);
+                await LoadSchedule(SelectedTermId);
+            }
 
             return Page();
         }
-        public async Task<IActionResult> OnGetLoadScheduleAsync(int termId)
-        {
-            await LoadSchedule(termId);
-            return Partial("_ScheduleTable", ScheduleList); 
-        }
+
+
 
         private async Task LoadSchedule(int termId)
         {
-            var studentId = 11;
-
             ScheduleList = await _context.Schedules
-                .Where(s => s.Class.Students.Any(st => st.Id == studentId) && s.TermId == termId)
-                .Include(s => s.Subject)
-                .Include(s => s.Teacher)
-                .Include(s => s.Room)
+                .Where(s => s.TermId == termId && s.Class.Members.Any(cm => cm.UserId == UserId))
                 .Select(s => new ScheduleViewModel
                 {
                     Id = s.Id,
-                    SubjectName = s.Subject.SubjectName,
+                    SubjectName = s.Subject.Name,
                     TeacherName = s.Teacher.Name,
-                    RoomName = s.Room.RoomName,
+                    RoomName = s.Room.Name,
                     DaysOfWeek = s.DaysOfWeek,
                     StudySessions = s.StudySessions
                 })

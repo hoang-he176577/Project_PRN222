@@ -1,0 +1,39 @@
+@page
+@model StudentManagement.Pages.Student.NotificationModel
+@{
+    ViewData["Title"] = "Thông Báo";
+    Layout = "_LayoutStudent";
+}
+
+<div class="container mt-4">
+    <h2 class="text-center">Thông Báo</h2>
+
+    <table class="table table-bordered text-center">
+        <thead class="thead-dark">
+            <tr>
+                <th>Người Gửi</th>
+                <th>Thông Báo</th>
+                <th>Ngày Gửi</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Notifications.Count == 0)
+            {
+                <tr>
+                    <td colspan="3">Chưa có thông báo nào.</td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var notification in Model.Notifications)
+                {
+                    <tr>
+                        <td>@notification.Sender.Name</td>
+                        <td>@notification.Message</td>
+                        <td>@notification.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
