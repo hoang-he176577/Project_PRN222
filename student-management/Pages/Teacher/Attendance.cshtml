@@ -1,72 +1,43 @@
-@page "{classId:int?}"
-@model StudentManagement.Pages.Teacher.AttendanceModel
-@{
-    ViewData["Title"] = "Điểm Danh Học Sinh";
-    Layout = "_LayoutTeacher";
+@model List<Class>
 
-    int selectedClassId = Model.SelectedClassId;
-}
+<h2>Chấm điểm danh học sinh</h2>
 
-<div class="container mt-4">
-    <h2 class="text-center">Điểm Danh Học Sinh</h2>
-
-    <div class="row mb-4">
-        <div class="col-md-6 offset-md-3">
-            <label for="classSelect">Chọn Lớp:</label>
-            <select id="classSelect" class="form-control">
-                <option value="">-- Chọn lớp --</option>
-                @* @foreach (var classItem in Model.Classes)
-                {
-                    bool isSelected = classItem.Id == selectedClassId;
-                    <option value="@classItem.Id" selected="@(isSelected ? "selected" : null)">
-                        @classItem.ClassName
-                    </option>
-                } *@
-            </select>
-        </div>
-    </div>
-
-    @if (Model.Students.Count > 0)
+<select id="classSelect">
+    @foreach (var classItem in Model)
     {
-        <form method="post">
-            <table class="table table-bordered text-center">
-                <thead class="thead-dark">
-                    <tr>
-                        <th>Tên Học Sinh</th>
-                        <th>Điểm Danh</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var student in Model.Students)
-                    {
-                        <tr>
-                            <td>@student.Name</td>
-                            <td>
-                                <input type="checkbox" name="presentStudentIds" value="@student.Id" />
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-            <input type="hidden" name="classId" value="@selectedClassId" />
-            <button type="submit" class="btn btn-primary">Điểm Danh</button>
-        </form>
+        <option value="@classItem.Id">@classItem.Name</option>
     }
-    else if (selectedClassId != 0)
-    {
-        <p class="text-center">Không có học sinh nào trong lớp này.</p>
-    }
+</select>
+
+<div id="studentList">
 </div>
 
-@section Scripts {
-    <script>
-        $(document).ready(function () {
-            $("#classSelect").change(function () {
-                var classId = $(this).val();
-                if (classId) {
-                    window.location.href = `/Teacher/Attendance?classId=${classId}`;
-                }
+<script>
+    document.getElementById("classSelect").addEventListener("change", function () {
+        var classId = this.value;
+        fetch(`/Attendance/GetSchedule?classId=${classId}`)
+            .then(response => response.json())
+            .then(schedules => {
+                console.log(schedules);
             });
-        });
-    </script>
-}
+
+        fetch(`/Attendance/GetStudents?classId=${classId}`)
+            .then(response => response.json())
+            .then(students => {
+                var studentListHtml = '';
+                students.forEach(student => {
+                    studentListHtml += `
+                        <div>
+                            <label>${student.name}</label>
+                            <select>
+                                <option value="Present">Có mặt</option>
+                                <option value="Absent">Vắng mặt</option>
+                                <option value="Late">Trễ</option>
+                            </select>
+                        </div>
+                    `;
+                });
+                document.getElementById("studentList").innerHTML = studentListHtml;
+            });
+    });
+</script>

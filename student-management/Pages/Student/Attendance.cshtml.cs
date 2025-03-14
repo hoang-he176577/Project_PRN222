@@ -74,16 +74,16 @@ namespace StudentManagement.Pages.Student
                 .Include(a => a.Schedule)
                 .ThenInclude(s => s.Subject)
                 .Include(a => a.Schedule.Term)
-                .Where(a => a.StudentId == UserId);
+                .Where(a => a.StudentId == 1);
 
             if (termId > 0)
             {
-                query = query.Where(a => a.Schedule.TermId == termId);
+                query = query.Where(a => a.Schedule.TermId == 1);
             }
 
             if (subjectId > 0)
             {
-                query = query.Where(a => a.Schedule.SubjectId == subjectId);
+                query = query.Where(a => a.Schedule.SubjectId == 1);
             }
 
             if (!string.IsNullOrEmpty(status))
